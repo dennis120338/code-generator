@@ -104,6 +104,11 @@ public class TemplateSourceDefault implements TemplateSource {
                 "}";
     }
 
+    /**
+     * 生成Service模板
+     *
+     * @return
+     */
     @Override
     public String getServiceTemplate() {
         return "";

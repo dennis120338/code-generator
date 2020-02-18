@@ -1,6 +1,5 @@
 package com.laohand.generator;
 
-import com.alibaba.fastjson.JSON;
 import com.laohand.generator.pojo.ClassInfo;
 import com.laohand.generator.pojo.Column;
 import com.laohand.generator.util.StringUtil;
@@ -60,10 +59,10 @@ public class CodeGenerator {
      * 生成文件
      *
      * @param sql            创建数据表文件
-     * @param packageName    模块基本包命
+     * @param packageName    模块基本包命，生成的模块将会放在该包下面
      * @param moduleName     模块名称
-     * @param savePath       模块保存路径
-     * @param templateSource 模板
+     * @param savePath       模块保存路径，需要传绝地路径
+     * @param templateSource 模板字符串内容
      * @throws IOException
      */
     public static void gen(String sql, String packageName, String moduleName, String savePath, TemplateSource templateSource, Map<String, String> userReplace) throws IOException {
@@ -71,7 +70,7 @@ public class CodeGenerator {
         classInfo.setPackageName(packageName);
         classInfo.setModuleName(moduleName);
         classInfo.setBaseSavePath(savePath);
-        System.out.println("【INFO】classInfo => " + JSON.toJSONString(classInfo));
+        System.out.println("【INFO】classInfo => " + classInfo.toString());
         createFile(classInfo, "controller", classInfo.getClassName() + "Controller.java", templateSource.getControllerTemplate(), userReplace);
         createFile(classInfo, "pojo", classInfo.getClassName() + ".java", templateSource.getPojoTemplate(), userReplace);
         createFile(classInfo, "service" + File.separator + "impl", classInfo.getClassName() + "ServiceImpl.java", templateSource.getServiceImplTemplate(), userReplace);
@@ -84,9 +83,10 @@ public class CodeGenerator {
      * 根据模板创建并替换文件
      *
      * @param classInfo
-     * @param path
-     * @param fileName
-     * @param tpl
+     * @param path        文件存放相对于模块的路径
+     * @param fileName    保存文件名称
+     * @param tpl         模板内容
+     * @param userReplace 用户自定义需要替换的内容
      * @throws IOException
      */
     public static void createFile(ClassInfo classInfo, String path, String fileName, String tpl, Map<String, String> userReplace) throws IOException {
@@ -99,11 +99,13 @@ public class CodeGenerator {
         tpl = tpl.replaceAll("TABLE_NAME", classInfo.getTableName());
         tpl = tpl.replaceAll("TABLE_COMMENT", classInfo.getTableName());
         tpl = tpl.replaceAll("PACKAGE", classInfo.getPackageName() + "." + classInfo.getModuleName());
+        //用户自定义变量替换
         if (userReplace != null) {
             for (Map.Entry<String, String> entry : userReplace.entrySet()) {
                 tpl = tpl.replaceAll(entry.getKey(), entry.getValue());
             }
         }
+        //以下代码用于替换pojo对象
         StringBuilder stringBuffer = new StringBuilder();
         for (Column column : classInfo.getFieldList()) {
             StringBuilder row = new StringBuilder();
